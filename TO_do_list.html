@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Texturina:ital,wght@0,100;1,900&display=swap" rel="stylesheet">
+
+
+    <title>TO DO LIST</title>
+    <style>
+        body {
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 55px;
+            overflow-x: hidden;
+            margin-top: 60px;
+            font-family: 'Texturina', serif;
+        }
+
+        h1 {
+            text-align: center;
+            text-shadow: 5px 1px #00000045;
+        }
+
+        #content {
+            margin-bottom: 70px;
+        }
+
+        footer {
+            background-color: black;
+            text-align: center;
+            color: white;
+            padding: 10px;
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
+        }
+
+        .alert {
+            position: absolute;
+            top: 100%;
+            z-index: 1;
+            left: 0px;
+            right: 0px;
+        }
+
+        .alert p {
+            margin: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- nvabar  -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">TO-DO-LIST</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Page 1 <span
+                                class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Page 1-1</a></li>
+                            <li><a href="#">Page 1-2</a></li>
+                            <li><a href="#">Page 1-3</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Page 2</a></li>
+                    <li><a href="#">Page 3</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- alert message  -->
+        <div id="message"></div>
+    </nav>
+
+    <!-- content  -->
+    <div id="content" class="container">
+        <div class="row">
+            <div class="col-sm-4 col-sm-offset-4">
+                <h1>TO-DO LIST</h1>
+                <div class="form">
+                    <div class="form-group">
+                        <label for="tit">Title</label>
+                        <input id="tit" type="text" placeholder="enter the title" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="desc">Enter description</label>
+                        <textarea onkeyup="wordcount()" id="desc" rows="10" class="form-control"></textarea>
+                        <p id="word_count"></p>
+                    </div>
+
+                    <button onclick="add()" class="btn btn-success">ADD</button>
+                    <button onclick="clearall()" class="btn btn-danger">CLEAR LIST</button>
+
+                </div>
+            </div>
+
+        </div>
+        <br>
+        <br>
+        <div class="list row">
+            <h1>Your List</h1>
+            <div class="col-sm-8 col-sm-offset-2">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>SNo.</th>
+                            <th>TITLE</th>
+                            <th>DESCRIPTION</th>
+                            <th>DELETE</th>
+                            <th>UPDATE</th>
+                            <th>SAVE</th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- footer  -->
+    <footer>
+        made by nipun gupta
+    </footer>
+</body>
+
+<script>
+    function display() {
+        if (localStorage.getItem('jsondata1') != null && localStorage.getItem('jsondata1') != "[]") {
+            let jsonstr = localStorage.getItem('jsondata1');
+            let jsonarr2D = JSON.parse(jsonstr);
+            let str = "";
+
+            for (let i = 0, index = 1; i < jsonarr2D.length; i++, index++) {
+                str += `<tr>
+                            <td>${index}</td>
+                            <td><textarea class="titles" disabled />${jsonarr2D[i][0]}</textarea></td>
+                            <td><textarea  class="descs" disabled />${jsonarr2D[i][1]}</textarea></td>
+                            <td><button onclick='deleteitem(${i})' class="btn btn-danger">DELETE</button></td>
+                            <td><button onclick='updateitem(${i})' class="btn btn-primary">update</button></td>
+                            <td><button onclick='saveitem(${i})' class="btn btn-success">Save</button></td>
+                        </tr>
+                        `;
+
+                document.getElementById("tbody").innerHTML = str;
+            }
+
+        } else {
+            str = "";
+            document.getElementById("tbody").innerHTML = str;
+        }
+    }
+
+    function wordcount() {
+        let descpid = document.getElementById("desc");
+        let descp = descpid.value;
+        let desc_countid = document.getElementById("word_count");
+        let count = descp.length;
+        desc_countid.innerHTML = `${count} Characters are entered by you`;
+    }
+
+    display(); //calling it once to display as the page loads
+
+    function add() {
+
+        let titid = document.getElementById("tit");
+        let descid = document.getElementById("desc");
+
+        let title = titid.value;
+        let desc = descid.value;
+
+        if (localStorage.getItem('jsondata1') == null) {
+            let jsonarr2D = [];
+            jsonarr2D.push([title, desc]);
+            localStorage.setItem('jsondata1', JSON.stringify(jsonarr2D));
+        } else {
+            let jsonstr = localStorage.getItem('jsondata1');
+            let jsonarr2D = JSON.parse(jsonstr);
+            jsonarr2D.push([title, desc]);
+            localStorage.setItem('jsondata1', JSON.stringify(jsonarr2D));
+
+        }
+
+        display();
+        clearFormData();
+        showalert("success", "item added");
+
+    }
+
+    function clearFormData() {
+        document.getElementById('tit').value = '';
+        document.getElementById('desc').value = '';
+        document.getElementById("word_count").innerHTML = ``;
+    }
+
+    function deleteitem(item) {
+        console.log("delete");
+        // console.log(item);
+        let jsonstr = localStorage.getItem('jsondata1');
+        let jsonarr2D = JSON.parse(jsonstr);
+        jsonarr2D.splice(item, 1);
+        localStorage.setItem('jsondata1', JSON.stringify(jsonarr2D));
+        display();
+        showalert("danger", "item deleted");
+    }
+
+    function clearall() {
+
+        let clear = confirm("are you sure?");
+
+        if (clear) {
+            localStorage.clear();
+            display();
+        } else {
+            return;
+        }
+
+    }
+
+    //update function
+    let updateitem = (index) => {
+        let inputTitleElemArr = document.getElementsByClassName('titles'); //all textarea title elements in item list
+        let inputDescElemArr = document.getElementsByClassName('descs'); //all textarea desc elements in item list
+        let selectedInputElemTitle = inputTitleElemArr[index];
+        let selectedInputElemDesc = inputDescElemArr[index];
+
+        selectedInputElemTitle.removeAttribute('disabled');
+        selectedInputElemDesc.removeAttribute('disabled');
+
+    }
+
+    //save item
+    let saveitem = (index) => {
+
+        let inputTitleElemArr = document.getElementsByClassName('titles'); //all input elements in item list
+        let inputDescElemArr = document.getElementsByClassName('descs'); //all input elements in item list
+        let selectedInputElemTitle = inputTitleElemArr[index];
+        let selectedInputElemDesc = inputDescElemArr[index];
+
+        let updatedTitle = selectedInputElemTitle.value;
+        let updatedDesc = selectedInputElemDesc.value;
+
+        let jsonstring2D = localStorage.getItem('jsondata1'); //fetch from local s.
+        let jsonarr2D = JSON.parse(jsonstring2D);//convert to array object
+
+        let updated1dArr = [updatedTitle, updatedDesc];
+
+        //update the orignal array list item in 2darray with new array list item
+        jsonarr2D.splice(index, 1, updated1dArr);
+        localStorage.setItem('jsondata1', JSON.stringify(jsonarr2D));
+        display();
+        showalert("success", "item updated");
+
+    }
+
+
+    // alert message 
+    function showalert(type, message) {
+        messageid = document.getElementById("message");
+        messageid.innerHTML = ` <div id="alert" class="alert alert-${type}">
+            <p id="alerttext"><strong>${type}!</strong> ${message}</p>
+        </div>`;
+
+        setTimeout(function closealert() {
+            messageid.innerHTML = ``;
+        }, 3000);
+    }
+</script>
+
+</html>
